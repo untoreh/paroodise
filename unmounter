@@ -1,0 +1,20 @@
+#!/bin/bash
+systemctl | grep running &> runsys.txt
+cat runsys.txt| awk '{ print $1 }' &> runsyss.txt
+rm runsys.txt
+grep ".service$" runsyss.txt > runsysss.txt
+rm runsyss.txt
+cat runsysss.txt | systemctl restart `xargs`
+rm runsysss.txt
+
+fuser -vm /oldroot &> stilrun.txt
+cat stilrun.txt | awk '{ print $4 }' > stilrunn.txt
+rm stilrun.txt
+
+while read p; do
+  if [ $p != "systemd|ssh" ]; then
+        pkill -15 -f $p
+  fi
+done <stilrunn.txt
+rm stilrunn.txt
+exit
