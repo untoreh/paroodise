@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# This script has been tested to work on debian 8, systemctl is required
+
+# Update The system and install docker
+
+#apt-get update && apt-get upgrade -q -y
+#apt-get install apt-transport-https ca-certificates -q -y
+#apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E8$
+#touch /etc/apt/sources.list.d/docker.list
+#echo "deb https://apt.dockerproject.org/repo debian-jessie main" > /etc/apt/sour$
+#apt-get update && apt-get install docker-engine -q -y
+
+# Start the pivoting
+set -B
+
+mkdir -p /root/.ssh
+rm /root/.ssh/id_rsa
+rm  /root/.ssh/id_rsa.pub
+ssh-keygen -b 2048 -t rsa -f /root/.ssh/id_rsa -q -N ""
+cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
+
+umount -a
+mkdir /tmp/tmproot
+mount -t tmpfs none /tmp/tmproot
+mkdir /tmp/tmproot/{proc,sys,dev,run,usr,var,tmp,oldroot,root}
+cp -ax /{bin,etc,mnt,sbin,lib,lib64} /tmp/tmproot/
+cp -ax /usr/{bin,sbin,lib,lib64} /tmp/tmproot/usr/
+cp -ax /var/{account,empty,lib,local,lock,nis,opt,preserve,run,spool,tmp,yp} /tmp$
+cp -ax /root/unmounter /tmp/tmproot/root/
+cp -ax /root/umoldroot /tmp/tmproot/root/
+cp -ax /root/.ssh /tmp/tmproot/root/
+mount --make-rprivate / # necessary for pivot_root to work
+pivot_root /tmp/tmproot /tmp/tmproot/oldroot
+for i in dev proc sys run; do mount --move /oldroot/$i /$i; done
+
+nohup ssh -o "StrictHostKeyChecking no" root@localhost bash ./unmounter
+
+pkill -f sshd
+pkill -f rpcbind
+systemctl daemon-reexec
+umount /oldroot
+service ssh start
+sleep 3
+umount -f /oldroot
+
+nohup ssh -o "StrictHostKeyChecking no" root@localhost bash ./umoldroot &
