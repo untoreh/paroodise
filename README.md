@@ -6,6 +6,7 @@ Paroodise is a scripted implementation of [this](http://unix.stackexchange.com/q
 SSH/Login with root, then:
 ```
  git-clone https://github.com/natostanco/paroodise
+ cd paroodise
  nohup ./prd
 ```
 Restart your shell and you should be inside root on tmpfs (RAM).
