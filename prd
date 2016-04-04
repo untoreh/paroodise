@@ -27,8 +27,8 @@ mkdir /tmp/tmproot/{proc,sys,dev,run,usr,var,tmp,oldroot,root}
 cp -ax /{bin,etc,mnt,sbin,lib,lib64} /tmp/tmproot/
 cp -ax /usr/{bin,sbin,lib,lib64} /tmp/tmproot/usr/
 cp -ax /var/{account,empty,lib,local,lock,nis,opt,preserve,run,spool,tmp,yp} /tmp$
-cp -ax /root/unmounter /tmp/tmproot/root/
-cp -ax /root/umoldroot /tmp/tmproot/root/
+cp -ax ./unmounter /tmp/tmproot/root/
+cp -ax ./umoldroot /tmp/tmproot/root/
 cp -ax /root/.ssh /tmp/tmproot/root/
 mount --make-rprivate / # necessary for pivot_root to work
 pivot_root /tmp/tmproot /tmp/tmproot/oldroot
